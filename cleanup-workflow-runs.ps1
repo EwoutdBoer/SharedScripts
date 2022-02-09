@@ -92,10 +92,15 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         Write-Host 'Process run with id:' $run.id
         Write-Host 'Name: ' + $run.name
         Write-Host 'Status: ' + $run.status
-        Write-Host 'Concusion': $run.conclusion
+        Write-Host 'Conclusion': $run.conclusion
 
         if($run.status -ne 'completed') {
             continue # run is still ongoing, so skip it and don't count it
+        }
+        
+        if($run.conclusion -eq 'cancelled') {
+            $runIdsToDelete.Add($run.id)  # run was cancelled delete all cancelled runs by default
+            continue
         }
 
         $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq $run.head_branch -and $_.Status -eq $run.conclusion}  #.Where(_ => _.Action eq $run.name)

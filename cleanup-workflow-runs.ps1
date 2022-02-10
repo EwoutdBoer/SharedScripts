@@ -98,6 +98,11 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
             continue # run is still ongoing, so skip it and don't count it
         }
 
+        if($run.conclusion -eq 'skipped') {
+            $runIdsToDelete.Add($run.id)
+            continue # run is skipped, don't show any of those
+        }
+
         $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq $run.head_branch -and $_.Status -eq $run.conclusion}  #.Where(_ => _.Action eq $run.name)
         if($correspondingValues.Count -eq 0) {
             $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq '*' -and $_.Status -eq $run.conclusion}
@@ -128,7 +133,7 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
             $policyValue = $correspondingPolicyValue.success
         }
         else {
-            $policyValue = $correspondingPolicyValue.error
+            $policyValue = $correspondingPolicyValue.failure
         }
 
         if($correspondingValue.Value -gt $policyValue) {

@@ -1,0 +1,59 @@
+{
+  "actions": [
+    {
+      "name": "ci-all",
+      "branches": [
+        {
+          "name": "main",
+          "success": 3,
+          "failure": 1
+        },
+        {
+          "name": "*",
+          "success": 1,
+          "failure": 1
+        }
+      ]
+    },
+    {
+      "name": "pr-all",
+      "branches": [
+        {
+          "name": "main",
+          "success": 3,
+          "failure": 1
+        },
+        {
+          "name": "*",
+          "success": 1,
+          "failure": 1
+        }
+      ]
+    },
+    {
+      "name": "push-contracts-to-github-packages",
+      "branches": [
+        {
+          "name": "main",
+          "success": 3,
+          "failure": 1
+        },
+        {
+          "name": "*",
+          "success": 1,
+          "failure": 1
+        }
+      ]
+    },
+    {
+      "name": ".Net",
+      "branches": [
+        {
+          "name": "*",
+          "success": 0,
+          "failure": 0
+        }
+      ]
+    }
+  ]
+}

@@ -54,6 +54,36 @@
           "failure": 0
         }
       ]
+    },
+    {
+      "name": "ci-mvcwithlocalsecurity",
+      "branches": [
+        {
+          "name": "main",
+          "success": 2,
+          "failure": 1
+        },
+        {
+          "name": "*",
+          "success": 1,
+          "failure": 1
+        }
+      ]
+    },
+    {
+      "name": "cleanup-action-results",
+      "branches": [
+        {
+          "name": "main",
+          "success": 1,
+          "failure": 1
+        },
+        {
+          "name": "*",
+          "success": 1,
+          "failure": 1
+        }
+      ]
     }
   ]
 }

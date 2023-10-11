@@ -91,8 +91,8 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
     {
         Write-Host ''
         Write-Host 'Process run with id:' $run.id
-        Write-Host 'Name: ' + $run.name
-        Write-Host 'Status: ' + $run.status
+        Write-Host 'Name: ' $run.name
+        Write-Host 'Status: ' $run.status
         Write-Host 'Conclusion': $run.conclusion
 
         if($run.status -ne 'completed') {
@@ -118,7 +118,7 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         }
 
         if($correspondingValues.Count -eq 0) {
-            Write-Host "No value set up in workflow-retention => Item is skipped. Run name: ${run.name}, Branch: $run.head_branch, Status: $run.conclusion"
+            Write-Host "No value set up in workflow-retention => Item is skipped. Run name: ${run.name}, Branch: ${run.head_branch}, Status: ${run.conclusion}"
             continue
         }
         $correspondingValue = $correspondingValues  # There should be only a single result, so not needed to get the first here

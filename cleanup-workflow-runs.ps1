@@ -95,6 +95,11 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         Write-Host 'Status: ' $run.status
         Write-Host 'Conclusion': $run.conclusion
 
+        $runConcusionToUse = $run.conclusion
+        if($runConcusionToUse -ne 'success') {
+            $runConcusionToUse = 'failure'
+        }
+
         if($run.status -ne 'completed') {
             Write-Host 'status is not completed yet => skip this run': $run.status
             continue # run is still ongoing, so skip it and don't count it
@@ -108,19 +113,26 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
 
         if($run.conclusion -eq 'skipped') {
             Write-Host 'concusion is skipped => Mark for deletion': $run.id
+            $runIdsToDelete.Add($run.id)  # run was cancelled delete all cancelled runs by default
+            continue
+        }
+
+        if($run.conclusion -eq 'skipped') {
+            Write-Host 'concusion is skipped => Mark for deletion': $run.id
             $runIdsToDelete.Add($run.id)
             continue # run is skipped, don't show any of those
         }
 
-        $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq $run.head_branch -and $_.Status -eq $run.conclusion}  #.Where(_ => _.Action eq $run.name)
+        $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq $run.head_branch -and $_.Status -eq $runConcusionToUse}  #.Where(_ => _.Action eq $run.name)
         if($correspondingValues.Count -eq 0) {
-            $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq '*' -and $_.Status -eq $run.conclusion}
+            $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq '*' -and $_.Status -eq $runConcusionToUse}
         }
 
         if($correspondingValues.Count -eq 0) {
             Write-Host "No value set up in workflow-retention => Item is skipped. Run name: $($run.name), Branch: $($run.head_branch), Status: $($run.conclusion)"
             continue
         }
+
         $correspondingValue = $correspondingValues  # There should be only a single result, so not needed to get the first here
         $correspondingValue.Value++ # Value found so add an occurence
 
@@ -148,6 +160,13 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
             $policyValue = $correspondingPolicyValue.failure
         }
 
+        if($correspondingPolicy.deleteFailureRunsWhenFollwedBySyccess -eq $true -and  $correspondingPolicyValue.success -gt 0)
+        {
+            Write-Host "deleteFailureRunsWhenFollwedBySyccess is set to true, number of success runs is greater than 0, value = $($correspondingPolicyValues.success) => Mark for deletion"
+            $runIdsToDelete.Add($run.id)
+            continue
+        }
+
 #ToDo: EdB: Add an option in the config to specify deletion of non success runs when a success run is available that is newer. Keep in mind that the last run will be resulted first from the Api
 
         if($correspondingValue.Value -gt $policyValue) {
@@ -156,7 +175,7 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         }
         else
         {
-            Write-Host "Value: $($correspondingValue.Value) is less than or equal to policy value : $policyValue}, for policy: $($correspondingPolicyValue.name) => Keep"
+            Write-Host "Value: $($correspondingValue.Value) is less than or equal to policy value : $policyValue, for policy: $($correspondingPolicyValue.name) => Keep"
         }
     }
 

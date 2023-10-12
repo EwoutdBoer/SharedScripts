@@ -151,12 +151,12 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
 #ToDo: EdB: Add an option in the config to specify deletion of non success runs when a success run is available that is newer. Keep in mind that the last run will be resulted first from the Api
 
         if($correspondingValue.Value -gt $policyValue) {
-            Write-Host "Value: ${$correspondingValue.Value} is greater than policy value : ${policyValue}, for policy: $($correspondingPolicyValue.name) => Mark for deletion"
+            Write-Host "Value: $($correspondingValue.Value) is greater than policy value : $policyValue, for policy: $($correspondingPolicyValue.name) => Mark for deletion"
             $runIdsToDelete.Add($run.id)
         }
         else
         {
-            Write-Host "Value: ${$correspondingValue.Value} is less than or equal to policy value : ${policyValue}, for policy: $($correspondingPolicyValue.name) => Keep"
+            Write-Host "Value: $($correspondingValue.Value) is less than or equal to policy value : $policyValue}, for policy: $($correspondingPolicyValue.name) => Keep"
         }
     }
 

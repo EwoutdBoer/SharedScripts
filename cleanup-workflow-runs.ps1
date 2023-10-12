@@ -153,21 +153,20 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         $correspondingPolicyValue = $correspondingPolicyValues[0]
 
         $policyValue = 0
-        if($run.conclusion -eq 'success') {
+        if($runConcusionToUse -eq 'success') {
             $policyValue = $correspondingPolicyValue.success
         }
         else {
             $policyValue = $correspondingPolicyValue.failure
         }
 
-        if($correspondingPolicy.deleteFailureRunsWhenFollwedBySyccess -eq $true -and  $correspondingPolicyValue.success -gt 0)
+        # Check if the policy is set to delete failure runs when followed by success runs, then remove all failed items. This works while the newest is always processed first
+        if($correspondingPolicy.deleteFailureRunsWhenFollwedBySyccess -eq $true -and $correspondingPolicyValue.success -gt 0 -and $runConcusionToUse -ne 'success')
         {
             Write-Host "deleteFailureRunsWhenFollwedBySyccess is set to true, number of success runs is greater than 0, value = $($correspondingPolicyValues.success) => Mark for deletion"
             $runIdsToDelete.Add($run.id)
             continue
         }
-
-#ToDo: EdB: Add an option in the config to specify deletion of non success runs when a success run is available that is newer. Keep in mind that the last run will be resulted first from the Api
 
         if($correspondingValue.Value -gt $policyValue) {
             Write-Host "Value: $($correspondingValue.Value) is greater than policy value : $policyValue, for policy: $($correspondingPolicyValue.name) => Mark for deletion"

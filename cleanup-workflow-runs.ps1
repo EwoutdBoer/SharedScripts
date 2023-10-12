@@ -178,6 +178,8 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         }
     }
 
+    Write-Host ''
+    
     foreach ($idToDelete in $runIdsToDelete) {
         Write-Host 'Start Deletion of run id: ' + $idToDelete
         $completeDeleurl = $deleteUrl + $idToDelete

@@ -2,6 +2,7 @@
   "actions": [
     {
       "name": "ci-all",
+      "deleteFailureRunsWhenFollwedBySyccess": true,
       "branches": [
         {
           "name": "main",
@@ -17,6 +18,7 @@
     },
     {
       "name": "pr-all",
+      "deleteFailureRunsWhenFollwedBySyccess": true,
       "branches": [
         {
           "name": "main",
@@ -32,6 +34,7 @@
     },
     {
       "name": "push-contracts-to-github-packages",
+      "deleteFailureRunsWhenFollwedBySyccess": true,
       "branches": [
         {
           "name": "main",
@@ -57,6 +60,7 @@
     },
     {
       "name": "ci-mvcwithlocalsecurity",
+      "deleteFailureRunsWhenFollwedBySyccess": true,
       "branches": [
         {
           "name": "main",
@@ -72,6 +76,7 @@
     },
     {
       "name": "cleanup-action-results",
+      "deleteFailureRunsWhenFollwedBySyccess": true,
       "branches": [
         {
           "name": "main",

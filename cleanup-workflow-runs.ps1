@@ -51,6 +51,7 @@ foreach ($action in $retentionPolicies)
         $tempSuccess = New-Object System.Object
         $tempSuccess | Add-Member -MemberType NoteProperty -Name "Action" -Value $action.name
         $tempSuccess | Add-Member -MemberType NoteProperty -Name "Branch" -Value $branch.name
+        $tempSuccess | Add-Member -MemberType NoteProperty -Name "ActorLogin" -Value $action.actorLogin
         $tempSuccess | Add-Member -MemberType NoteProperty -Name "Status" -Value "success"
         $tempSuccess | Add-Member -MemberType NoteProperty -Name "Value" -Value 0
         $currentCountedValues.Add($tempSuccess) | Out-Null
@@ -58,6 +59,7 @@ foreach ($action in $retentionPolicies)
         $tempError = New-Object System.Object
         $tempError | Add-Member -MemberType NoteProperty -Name "Action" -Value $action.name
         $tempError | Add-Member -MemberType NoteProperty -Name "Branch" -Value $branch.name
+        $tempError | Add-Member -MemberType NoteProperty -Name "ActorLogin" -Value $action.actorLogin
         $tempError | Add-Member -MemberType NoteProperty -Name "Status" -Value "failure"
         $tempError | Add-Member -MemberType NoteProperty -Name "Value" -Value 0
         $currentCountedValues.Add($tempError) | Out-Null
@@ -77,7 +79,7 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
     # ToDo: Split code to functions
     $jobs = Invoke-RestMethod -StatusCodeVariable "StatusCode" -SkipHttpErrorCheck -Uri $url -Method Get -Headers $headers
     if ($StatusCode -eq 200) {
-    Write-Host "> Success!" -ForegroundColor 'green'
+        Write-Host "> Success!" -ForegroundColor 'green'
         Write-Host $jobs
     } else {
         Write-Host "> Error!" -ForegroundColor 'red'
@@ -95,9 +97,9 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         Write-Host 'Status: ' $run.status
         Write-Host 'Conclusion': $run.conclusion
 
-        $runConcusionToUse = $run.conclusion
-        if($runConcusionToUse -ne 'success') {
-            $runConcusionToUse = 'failure'
+        $runConclusionToUse = $run.conclusion
+        if($runConclusionToUse -ne 'success') {
+            $runConclusionToUse = 'failure'
         }
 
         if($run.status -ne 'completed') {
@@ -105,27 +107,36 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
             continue # run is still ongoing, so skip it and don't count it
         }
         
+        # Delete cancelled runs by default
         if($run.conclusion -eq 'cancelled') {
             Write-Host 'concusion is cancelled => Mark for deletion': $run.id
             $runIdsToDelete.Add($run.id)  # run was cancelled delete all cancelled runs by default
             continue
         }
 
+        # Delete skipped runs by default
         if($run.conclusion -eq 'skipped') {
             Write-Host 'concusion is skipped => Mark for deletion': $run.id
             $runIdsToDelete.Add($run.id)  # run was cancelled delete all cancelled runs by default
             continue
         }
 
-        if($run.conclusion -eq 'skipped') {
-            Write-Host 'concusion is skipped => Mark for deletion': $run.id
-            $runIdsToDelete.Add($run.id)
-            continue # run is skipped, don't show any of those
+        # Check run name and branch
+        $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq $run.head_branch -and $_.Status -eq $runConclusionToUse}  #.Where(_ => _.Action eq $run.name)
+        
+        # Check run name * and branch and actorLogin
+        if($correspondingValues.Count -eq 0) {
+            $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq '*' -and $_.ActorLogin -eq $run.actor.login -and $_.Branch -eq $run.head_branch -and $_.Status -eq $runConclusionToUse}
         }
 
-        $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq $run.head_branch -and $_.Status -eq $runConcusionToUse}  #.Where(_ => _.Action eq $run.name)
+        # Check run name * and branch * and actorLogin
         if($correspondingValues.Count -eq 0) {
-            $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq '*' -and $_.Status -eq $runConcusionToUse}
+            $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq '*' -and $_.ActorLogin -eq $run.actor.login -and $_.Branch -eq '*' -and $_.Status -eq $runConclusionToUse}
+        }
+
+        # Check the Name and branch *
+        if($correspondingValues.Count -eq 0) {
+            $correspondingValues = $currentCountedValues | Where-Object {$_.Action -eq $run.name -and $_.Branch -eq '*' -and $_.Status -eq $runConclusionToUse}
         }
 
         if($correspondingValues.Count -eq 0) {
@@ -138,8 +149,15 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
 
         $correspondingPolicies = $retentionPolicies | Where-Object {$_.name -eq $run.name}
         if($correspondingPolicies.Count -eq 0) {
-            Write-Host "No policy set up in workflow-retention => Item is skipped. Run name: $($run.name), Branch: $($run.head_branch), Status: $($run.conclusion)"
-            continue
+            if($_.name -eq '*' -and $_.actorLogin -eq $run.actor.login) {
+                $correspondingPolicies = $retentionPolicies | Where-Object {$_.name -eq $run.name}
+            }
+            $correspondingPolicies = $retentionPolicies | Where-Object {$_.name -eq '*' -and $_.actorLogin -eq $run.actor.login}
+
+            if($correspondingPolicies.Count -eq 0) {
+                Write-Host "No policy set up in workflow-retention => Item is skipped. Run name: $($run.name), Branch: $($run.head_branch), Status: $($run.conclusion)"
+                continue
+            }
         }
         $correspondingPolicy = $correspondingPolicies[0]
         $correspondingPolicyValues = $correspondingPolicy.branches | Where-Object {$_.name -eq $run.head_branch}
@@ -153,7 +171,7 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         $correspondingPolicyValue = $correspondingPolicyValues[0]
 
         $policyValue = 0
-        if($runConcusionToUse -eq 'success') {
+        if($runConclusionToUse -eq 'success') {
             $policyValue = $correspondingPolicyValue.success
         }
         else {
@@ -161,7 +179,7 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         }
 
         # Check if the policy is set to delete failure runs when followed by success runs, then remove all failed items. This works while the newest is always processed first
-        if($correspondingPolicy.deleteFailureRunsWhenFollwedBySyccess -eq $true -and $correspondingPolicyValue.success -gt 0 -and $runConcusionToUse -ne 'success')
+        if($correspondingPolicy.deleteFailureRunsWhenFollwedBySyccess -eq $true -and $correspondingPolicyValue.success -gt 0 -and $runConclusionToUse -ne 'success')
         {
             Write-Host "deleteFailureRunsWhenFollwedBySyccess is set to true, number of success runs is greater than 0, value = $($correspondingPolicyValues.success) => Mark for deletion"
             $runIdsToDelete.Add($run.id)

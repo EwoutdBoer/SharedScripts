@@ -1,9 +1,9 @@
 name: sync-issues-to-project
 
 on:
-  schedule:
+  # schedule:
     # Run daily at 6:00 AM UTC
-    - cron: '0 6 * * *'
+    # - cron: '0 6 * * *'
   workflow_dispatch:
     # Allow manual trigger
 

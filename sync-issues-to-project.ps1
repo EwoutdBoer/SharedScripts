@@ -330,6 +330,10 @@ Write-Host "Looking for project '$ProjectName' in organization '$Organization'..
 $project = Get-OrganizationProject -OrgName $Organization -ProjName $ProjectName
 if (-not $project) {
     Write-Host "Project '$ProjectName' not found in organization '$Organization'" -ForegroundColor 'red'
+    Write-Host "Please verify that:" -ForegroundColor 'red'
+    Write-Host "  1. The project name is correct (case-sensitive)" -ForegroundColor 'red'
+    Write-Host "  2. Your PAT has 'project' scope to access organization projects" -ForegroundColor 'red'
+    Write-Host "  3. The project exists in the organization" -ForegroundColor 'red'
     exit 1
 }
 

@@ -20,6 +20,6 @@ jobs:
       - name: Run sync-issues-to-project script
         shell: pwsh
         env:
-          GITHUB_PAT: ${{ secrets.PROJECT_SYNC_PAT }}
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./sync-issues-to-project.ps1 -Organization 'EwoutdBoer' -ProjectName 'General' -PAT $secrets.GITHUB_TOKEN
+          ./sync-issues-to-project.ps1 -Organization 'EwoutdBoer' -ProjectName 'General' -PAT $env:GITHUB_PAT

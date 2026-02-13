@@ -179,9 +179,9 @@ while ($areItemsDeleted) {  #Note when enabeling the while loop, reset all value
         }
 
         # Check if the policy is set to delete failure runs when followed by success runs, then remove all failed items. This works while the newest is always processed first
-        if($correspondingPolicy.deleteFailureRunsWhenFollwedBySyccess -eq $true -and $correspondingPolicyValue.success -gt 0 -and $runConclusionToUse -ne 'success')
+        if($correspondingPolicy.deleteFailureRunsWhenFollowedBySuccess -eq $true -and $correspondingPolicyValue.success -gt 0 -and $runConclusionToUse -ne 'success')
         {
-            Write-Host "deleteFailureRunsWhenFollwedBySyccess is set to true, number of success runs is greater than 0, value = $($correspondingPolicyValues.success) => Mark for deletion"
+            Write-Host "deleteFailureRunsWhenFollowedBySuccess is set to true, number of success runs is greater than 0, value = $($correspondingPolicyValues.success) => Mark for deletion"
             $runIdsToDelete.Add($run.id)
             continue
         }

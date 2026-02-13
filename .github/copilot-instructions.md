@@ -39,7 +39,7 @@ This repository contains shared PowerShell scripts and CI/CD YAML files that can
 - Differentiates between success and failure run retention
 - Supports wildcard patterns (*) for action names and branches
 - Can target specific actors (e.g., dependabot[bot])
-- Feature: `deleteFailureRunsWhenFollwedBySyccess` to auto-cleanup failed runs
+- Feature: `deleteFailureRunsWhenFollowedBySuccess` to auto-cleanup failed runs
 
 ## Testing
 - Test scripts are prefixed with "Test" (e.g., `TestDownloadFilesFromRepo.ps1`)

@@ -2,7 +2,7 @@
   "actions": [
     {
       "name": "ci-all",
-      "deleteFailureRunsWhenFollwedBySyccess": true,
+      "deleteFailureRunsWhenFollowedBySuccess": true,
       "branches": [
         {
           "name": "main",
@@ -18,7 +18,7 @@
     },
     {
       "name": "pr-all",
-      "deleteFailureRunsWhenFollwedBySyccess": true,
+      "deleteFailureRunsWhenFollowedBySuccess": true,
       "branches": [
         {
           "name": "main",
@@ -34,7 +34,7 @@
     },
     {
       "name": "push-contracts-to-github-packages",
-      "deleteFailureRunsWhenFollwedBySyccess": true,
+      "deleteFailureRunsWhenFollowedBySuccess": true,
       "branches": [
         {
           "name": "main",
@@ -60,7 +60,7 @@
     },
     {
       "name": "ci-mvcwithlocalsecurity",
-      "deleteFailureRunsWhenFollwedBySyccess": true,
+      "deleteFailureRunsWhenFollowedBySuccess": true,
       "branches": [
         {
           "name": "main",
@@ -76,7 +76,7 @@
     },
     {
       "name": "cleanup-action-results",
-      "deleteFailureRunsWhenFollwedBySyccess": true,
+      "deleteFailureRunsWhenFollowedBySuccess": true,
       "branches": [
         {
           "name": "main",
@@ -92,7 +92,7 @@
     },
     {
       "name": "*",
-      "deleteFailureRunsWhenFollwedBySyccess": true,
+      "deleteFailureRunsWhenFollowedBySuccess": true,
       "actorLogin": "dependabot[bot]",
       "branches": [
         {
